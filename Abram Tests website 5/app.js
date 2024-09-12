@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getStorage, ref, listAll, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+import { getDatabase, ref as dbRef, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
 
 // Your web app's Firebase configuration
@@ -16,63 +16,45 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
-const storage = getStorage(app);
+const db = getDatabase(app);
 
 document.getElementById('test-select').addEventListener('change', function() {
     const folderName = this.value; // Get selected folder name
-    const pdfSelect = document.getElementById('pdf-select');
-    pdfSelect.innerHTML = '<option value="" disabled selected>Select</option>'; // Reset second dropdown
+    const linkSelect = document.getElementById('link-select');
+    linkSelect.innerHTML = '<option value="" disabled selected>Select</option>'; // Reset second dropdown
 
-    console.log(`Selected folder: ${folderName}`);
+    console.log(`Selected test: ${folderName}`);
 
-    // Map the folder names to their respective paths in Firebase Storage
-    const folderPaths = {
-        "AI Mark Failed": "AI Mark Failed",
-        "AI Mark Passed": "AI Mark Passed",
-        "Human Mark Identified as AI Mark": "Human Mark Identified as AI Mark",
-        "Human Mark Identified as Human": "Human Mark Identified as Human"
-    };
-
-    // Reference to the selected folder
-    const folderPath = folderPaths[folderName];
-    const listRef = ref(storage, folderPath);
-
-    console.log(`Listing files in folder: ${folderPath}`);
-
-    // List all files in the selected folder
-    listAll(listRef).then((result) => {
-        if (result.items.length === 0) {
-            console.log('No files found in this folder.');
-        }
-        result.items.forEach((itemRef) => {
-            console.log(`Found file: ${itemRef.name}`);
-            getDownloadURL(itemRef).then((url) => {
+    // Reference to the selected folder in Firebase Database
+    const linksRef = dbRef(db, `chatgpt_links/${folderName}`);
+    
+    // Fetch the links from Firebase Database
+    get(linksRef).then((snapshot) => {
+        console.log('Firebase get request complete'); // Debugging statement
+        if (snapshot.exists()) {
+            const links = snapshot.val();
+            console.log('Links fetched from database:', links); // Debugging statement
+            Object.keys(links).forEach((key) => {
                 const option = document.createElement('option');
-                option.value = url;
-                option.textContent = itemRef.name;
-                pdfSelect.appendChild(option);
-            }).catch((error) => {
-                console.error('Error fetching file URL:', error);
+                option.value = links[key];
+                option.textContent = key; // Use the key name as the text for the dropdown option
+                linkSelect.appendChild(option);
             });
-        });
+        } else {
+            console.log('No links found in this folder.');
+        }
     }).catch((error) => {
-        console.error('Error listing files:', error);
+        console.error('Error fetching links:', error);
     });
 });
 
-document.getElementById('view-pdf-button').addEventListener('click', function() {
-    const pdfSelect = document.getElementById('pdf-select');
-    const selectedPdfUrl = pdfSelect.value;
-    const pdfViewer = document.getElementById('pdf-viewer');
-    const pdfContainer = document.getElementById('pdf-container');
+document.getElementById('view-link-button').addEventListener('click', function() {
+    const linkSelect = document.getElementById('link-select');
+    const selectedLink = linkSelect.value;
 
-    if (selectedPdfUrl) {
-        pdfViewer.innerHTML = `<iframe src="${selectedPdfUrl}" width="100%" height="600px"></iframe>`;
-        pdfContainer.style.display = 'block';
-        pdfContainer.classList.add('active'); // Add active class to pdf-container
+    if (selectedLink) {
+        window.open(selectedLink, '_blank'); // Open the selected link in a new tab
     } else {
-        pdfViewer.innerHTML = 'Please select a PDF file to view.';
-        pdfContainer.style.display = 'none';
-        pdfContainer.classList.remove('active'); // Remove active class if no PDF is selected
+        alert('Please select a conversation link to view.');
     }
 });
