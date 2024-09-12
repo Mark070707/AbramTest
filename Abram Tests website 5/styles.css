@@ -14,7 +14,7 @@ body, html {
 }
 
 .header {
-    background: #3f51b5;
+    background: rgba(63, 81, 181, 0.8); /* Semi-transparent background */
     padding: 20px;
     text-align: center;
     color: white;
@@ -23,53 +23,41 @@ body, html {
 
 .header h1 {
     font-size: 3em;
-    font-weight: 300;
+    font-weight: bold; /* Make the header bold */
 }
 
 .main-content {
     display: flex;
-    flex-wrap: nowrap;
     justify-content: center;
+    align-items: flex-start; /* Align items to the top */
+    flex-wrap: wrap; /* Wrap items to fit smaller screens */
     padding: 20px;
-    position: relative;
+    gap: 20px;  /* Add gap between flex items */
+    width: 100%;
+    height: calc(100vh - 160px); /* Adjust height to fit footer */
+    position: relative; /* Ensure overlay does not affect positioning */
     z-index: 1;
-    background: transparent;
 }
 
-.left-container, .pdf-container, .container {
-    background: white;
-    margin: 15px;
+.left-container, .container {
+    background: rgba(255, 255, 255, 0.9); /* Slightly transparent background */
     padding: 20px;
     border-radius: 15px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Enhanced shadow */
     flex: 1;
     min-width: 300px;
     max-width: 500px;
-    transition: transform 0.3s, max-height 0.3s, flex 0.3s;
+    transition: transform 0.3s, box-shadow 0.3s; /* Add shadow transition */
     position: relative;
-    z-index: 1;
+    z-index: 2; /* Ensure containers are above overlay */
 }
 
-.left-container:hover, .pdf-container:hover, .container:hover {
+.left-container:hover, .container:hover {
     transform: translateY(-10px);
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2); /* Hover shadow */
 }
 
-.pdf-container {
-    transition: flex-grow 0.3s ease, max-height 0.3s ease;
-}
-
-.pdf-container.active {
-    flex-grow: 2; /* Ensure only the pdf-container expands */
-    max-height: calc(100vh - 160px);
-    overflow: auto;
-    margin: 15px 0;
-}
-
-.pdf-container.active .pdf-viewer {
-    height: calc(100vh - 220px);
-}
-
-.left-container h2, .pdf-container h2 {
+.left-container h2, .container h2 {
     font-size: 1.75em;
     margin-bottom: 20px;
     color: #3f51b5;
@@ -82,14 +70,15 @@ body, html {
     border-radius: 8px;
     border: 1px solid #ddd;
     font-size: 1em;
-    transition: border-color 0.3s;
+    transition: border-color 0.3s, box-shadow 0.3s;
 }
 
 .dropdown:focus {
     border-color: #3f51b5;
+    box-shadow: 0 0 8px rgba(63, 81, 181, 0.5); /* Focus shadow */
 }
 
-#view-pdf-button {
+.styled-button {
     width: 100%;
     padding: 12px;
     margin-top: 10px;
@@ -99,34 +88,28 @@ body, html {
     color: white;
     font-size: 1em;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, box-shadow 0.3s;
 }
 
-#view-pdf-button:hover {
+.styled-button:hover {
     background: #303f9f;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .image-container {
     position: relative;
     text-align: center;
+    width: 100%;
 }
 
 .image-container img {
     width: 100%;
     border-radius: 15px;
     position: relative;
-    z-index: 1;
-}
-
-.pdf-viewer iframe {
-    width: 100%;
-    height: 600px;
-    border: none;
-    border-radius: 15px;
 }
 
 .footer {
-    background: #3f51b5;
+    background: rgba(63, 81, 181, 0.8); /* Semi-transparent background */
     padding: 10px;
     text-align: center;
     color: white;
@@ -135,3 +118,15 @@ body, html {
     bottom: 0;
     box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
 }
+
+/* Overlay for better readability */
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Dark overlay */
+    z-index: 0; /* Behind all content */
+}
+
